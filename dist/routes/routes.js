@@ -16,4 +16,6 @@ var RouteSource;
 const router = express_1.default.Router();
 router.post('/signUp', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.signUpValidation), user_controller_1.signUp);
 router.post('/send/otp', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.sendOtpValidation), user_controller_1.sendOtp);
+router.post('/verify/otp', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.verifyOtpValidation), user_controller_1.verifyOtp);
+router.post('/login', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.loginValidation), user_controller_1.login);
 exports.default = router;

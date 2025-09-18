@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateOTP = exports.generateUniqueUsername = exports.encryptPassword = void 0;
+exports.comparePassword = exports.generateOTP = exports.generateUniqueUsername = exports.encryptPassword = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const nanoid_1 = require("nanoid");
 const slugify_1 = __importDefault(require("slugify"));
@@ -42,3 +42,16 @@ const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 exports.generateOTP = generateOTP;
+const comparePassword = (storedPassword, validatePassword) => {
+    if (storedPassword === validatePassword) {
+        return Promise.resolve(true);
+    }
+    return new Promise((resolve, reject) => {
+        bcryptjs_1.default.compare(storedPassword, validatePassword, (err, result) => {
+            if (err)
+                return reject(err);
+            return result ? resolve(result) : reject(new Error('Passwords do not match.'));
+        });
+    });
+};
+exports.comparePassword = comparePassword;
