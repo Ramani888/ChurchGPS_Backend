@@ -15,4 +15,5 @@ var RouteSource;
 })(RouteSource || (RouteSource = {}));
 const router = express_1.default.Router();
 router.post('/signUp', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.signUpValidation), user_controller_1.signUp);
+router.post('/send/otp', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.sendOtpValidation), user_controller_1.sendOtp);
 exports.default = router;

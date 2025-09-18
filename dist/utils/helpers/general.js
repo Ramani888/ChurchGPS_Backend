@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateUniqueUsername = exports.encryptPassword = void 0;
+exports.generateOTP = exports.generateUniqueUsername = exports.encryptPassword = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const nanoid_1 = require("nanoid");
 const slugify_1 = __importDefault(require("slugify"));
@@ -38,3 +38,7 @@ const generateUniqueUsername = async (email) => {
     return `${prefix}${(0, nanoid_1.nanoid)(6)}`;
 };
 exports.generateUniqueUsername = generateUniqueUsername;
+const generateOTP = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
+exports.generateOTP = generateOTP;
