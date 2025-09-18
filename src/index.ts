@@ -4,11 +4,26 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import routes from './routes/routes'
+import mongoose from "mongoose";
+
 
 // Load environment variables from .env
 dotenv.config();
 
 const app: Application = express();
+const mongoUri = process.env.DATABASE_URL || 'mongodb+srv://CVLCluster1:Ramani%407258@atlascluster.g9ls9b9.mongodb.net/FlashCard';
+
+mongoose.connect(mongoUri);
+const database = mongoose.connection;
+
+database.on('error', (error: any) => {
+  console.log(error);
+});
+
+database.once('connected', () => {
+  console.log('Database Connected');
+});
 
 // ✅ Security Middlewares
 app.use(helmet()); // sets secure HTTP headers
@@ -41,6 +56,14 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     status: "error",
     message: err.message || "Internal Server Error",
   });
+});
+
+// ✅ Api
+app.use("/api", routes)
+
+// Catch-all route for undefined routes
+app.use((req, res) => {
+  res.status(404).json({ message: "API route not found" });
 });
 
 // ✅ Server Listen
