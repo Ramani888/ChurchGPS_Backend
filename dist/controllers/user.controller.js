@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.verifyOtp = exports.sendOtp = exports.signUp = void 0;
+exports.forgotPassword = exports.login = exports.verifyOtp = exports.sendOtp = exports.signUp = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const user_service_1 = require("../services/user.service");
 const general_1 = require("../utils/helpers/general");
@@ -95,3 +95,26 @@ const login = async (req, res) => {
     }
 };
 exports.login = login;
+const forgotPassword = async (req, res) => {
+    const bodyData = req.body;
+    try {
+        const email = bodyData?.email?.toLowerCase();
+        // Check if the user exists
+        const existingUser = await (0, user_service_1.getUserByEmail)(email);
+        if (!existingUser)
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({ success: false, message: 'Invalid email.' });
+        // Encrypt Password
+        const newPassword = await (0, general_1.encryptPassword)(bodyData?.password);
+        await (0, user_service_1.updateUser)({
+            ...existingUser,
+            password: String(newPassword),
+            userName: existingUser.userName ?? existingUser.username
+        });
+        res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Password reset successfully.' });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+};
+exports.forgotPassword = forgotPassword;

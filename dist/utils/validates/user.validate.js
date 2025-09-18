@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginValidation = exports.verifyOtpValidation = exports.sendOtpValidation = exports.signUpValidation = void 0;
+exports.forgotPasswordValidation = exports.loginValidation = exports.verifyOtpValidation = exports.sendOtpValidation = exports.signUpValidation = void 0;
 exports.signUpValidation = {
     email: 'email|required',
     password: 'string|required',
@@ -15,6 +15,10 @@ exports.verifyOtpValidation = {
     otp: 'numeric|required'
 };
 exports.loginValidation = {
+    email: 'email|required',
+    password: 'string|required'
+};
+exports.forgotPasswordValidation = {
     email: 'email|required',
     password: 'string|required'
 };
