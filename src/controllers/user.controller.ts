@@ -56,3 +56,21 @@ export const sendOtp = async (req: AuthorizedRequest, res: Response) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
     }
 }
+
+export const verifyOtp = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const { email, otp } = req.body;
+
+        // Check if the temp user exists
+        const tempUser = await getTempUserByEmail(email);
+        if (!tempUser) return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid email.' });
+
+        // Verify OTP
+        if (tempUser.otp !== Number(otp)) return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid OTP.' });
+
+        res.status(StatusCodes.OK).json({ message: 'OTP verified successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+}

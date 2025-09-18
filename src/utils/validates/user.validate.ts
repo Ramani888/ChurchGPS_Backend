@@ -1,10 +1,15 @@
 export const signUpValidation = {
-    email: 'required|email',
-    password: 'required|string',
-    dob: 'required|date',
-    acceptedTnC: 'required|boolean'
+    email: 'email|required',
+    password: 'string|required',
+    dob: 'date|required',
+    acceptedTnC: 'boolean|required'
 };
 
 export const sendOtpValidation = {
-    email: 'required|email'
+    email: 'email|required'
+};
+
+export const verifyOtpValidation = {
+    email: 'email|required',
+    otp: 'numeric|required'
 };
