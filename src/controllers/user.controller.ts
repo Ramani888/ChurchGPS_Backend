@@ -1,7 +1,7 @@
-import { AuthorizedRequest } from "../types/user.d";
+import { AuthorizedRequest, IUser } from "../types/user.d";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
-import { createTempUser, createUser, getTempUserByEmail, getUserByEmail, updateTempUser } from "../services/user.service";
+import { createTempUser, createUser, getTempUserByEmail, getUserByEmail, updateTempUser, updateUser } from "../services/user.service";
 import { comparePassword, encryptPassword, generateOTP, generateUniqueUsername } from "../utils/helpers/general";
 import sendMail from "../utils/helpers/sendMail";
 
@@ -94,6 +94,31 @@ export const login = async (req: AuthorizedRequest, res: Response) => {
         if (!isPasswordValid) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Invalid password.' });
 
         res.status(StatusCodes.OK).json({ success: true, message: 'Login successful.' });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+}
+
+export const forgotPassword = async (req: AuthorizedRequest, res: Response) => {
+    const bodyData = req.body;
+    try {
+        const email = bodyData?.email?.toLowerCase();
+
+        // Check if the user exists
+        const existingUser = await getUserByEmail(email);
+        if (!existingUser) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Invalid email.' });
+
+        // Encrypt Password
+        const newPassword = await encryptPassword(bodyData?.password);
+
+        await updateUser({ 
+            ...existingUser, 
+            password: String(newPassword), 
+            userName: (existingUser as any).userName ?? (existingUser as any).username 
+        });
+
+        res.status(StatusCodes.OK).json({ success: true, message: 'Password reset successfully.' });
     } catch (error) {
         console.error(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });

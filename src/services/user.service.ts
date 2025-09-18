@@ -1,6 +1,7 @@
 import { TempUser } from "../models/tempUser.model";
 import { User } from "../models/user.model";
 import { ITempUser, IUser } from "../types/user";
+import { ObjectId } from 'mongodb';
 
 export const getUserByEmail = async (email: string) => {
     try {
@@ -17,6 +18,19 @@ export const createUser = async (userData: IUser) => {
         const user = new User(userData);
         await user.save();
         return user.toObject();
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const updateUser = async (data: IUser) => {
+    try {
+        const objectId = new ObjectId(data?._id?.toString());
+        const result = await User.findByIdAndUpdate(objectId, data, {
+            new: true,
+            runValidators: true
+        });
+        return result;
     } catch (err) {
         throw err;
     }

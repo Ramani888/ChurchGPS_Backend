@@ -18,3 +18,8 @@ export const loginValidation = {
     email: 'email|required',
     password: 'string|required'
 };
+
+export const forgotPasswordValidation = {
+    email: 'email|required',
+    password: 'string|required'
+};
