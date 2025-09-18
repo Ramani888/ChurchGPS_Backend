@@ -66,6 +66,8 @@ app.use((req, res) => {
   res.status(404).json({ message: "API route not found" });
 });
 
-
-// Export Express app for Vercel serverless function
-export default app;
+// ✅ Server Listen
+const PORT = process.env.PORT || 3010;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running securely on http://localhost:${PORT}`);
+});
