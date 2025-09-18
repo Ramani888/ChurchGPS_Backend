@@ -38,3 +38,15 @@ export const generateUniqueUsername = async (email: string) => {
 export const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
+
+export const comparePassword = (storedPassword: string, validatePassword: string): Promise<boolean> => {
+  if (storedPassword === validatePassword) {
+      return Promise.resolve(true);
+  }
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(storedPassword, validatePassword, (err: Error | null, result?: boolean) => {
+      if (err) return reject(err);
+      return result ? resolve(result) : reject(new Error('Passwords do not match.'));
+    });
+  });
+};
