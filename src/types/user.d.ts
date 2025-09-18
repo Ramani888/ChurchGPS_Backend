@@ -14,3 +14,11 @@ export interface IUser {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface ITempUser {
+  _id?: ObjectId;
+  email: string;
+  otp: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

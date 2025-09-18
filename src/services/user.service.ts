@@ -1,5 +1,6 @@
+import { TempUser } from "../models/tempUser.model";
 import { User } from "../models/user.model";
-import { IUser } from "../types/user";
+import { ITempUser, IUser } from "../types/user";
 
 export const getUserByEmail = async (email: string) => {
     try {
@@ -16,6 +17,39 @@ export const createUser = async (userData: IUser) => {
         const user = new User(userData);
         await user.save();
         return user.toObject();
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const createTempUser = async (userData: ITempUser) => {
+    try {
+        const user = new TempUser(userData);
+        await user.save();
+        return user.toObject();
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const getTempUserByEmail = async (email: string) => {
+    try {
+        const updatedEmail = email?.toLowerCase();
+        const result = await TempUser?.findOne({ email: updatedEmail });
+        return result?.toObject();
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const updateTempUser = async (data: ITempUser) => {
+    try {
+        const result = await TempUser?.findOneAndUpdate(
+            { email: data.email.toLowerCase() },
+            { $set: { otp: data.otp } },
+            { new: true, upsert: true }
+        );
+        return result?.toObject();
     } catch (err) {
         throw err;
     }

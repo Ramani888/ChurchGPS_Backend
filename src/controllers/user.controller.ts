@@ -1,8 +1,9 @@
 import { AuthorizedRequest } from "../types/user.d";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
-import { createUser, getUserByEmail } from "../services/user.service";
-import { encryptPassword, generateUniqueUsername } from "../utils/helpers/general";
+import { createTempUser, createUser, getTempUserByEmail, getUserByEmail, updateTempUser } from "../services/user.service";
+import { encryptPassword, generateOTP, generateUniqueUsername } from "../utils/helpers/general";
+import sendMail from "../utils/helpers/sendMail";
 
 export const signUp = async (req: AuthorizedRequest, res: Response) => {
     const bodyData = req.body;
@@ -22,6 +23,34 @@ export const signUp = async (req: AuthorizedRequest, res: Response) => {
         await createUser({...bodyData, email: email, password: newPassword, username: newUserName});
 
         res.status(StatusCodes.CREATED).json({ message: 'User created successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+}
+
+export const sendOtp = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const email = req.body.email?.toLowerCase();
+
+        // Generate OTP
+        const otp = generateOTP();
+
+        const otpTemplate = `
+            <h1>Your OTP Code</h1>
+            <p>Your OTP code is <strong>${otp}</strong></p>
+        `;
+
+        const existingTempUser = await getTempUserByEmail(email);
+        if (existingTempUser) {
+            await updateTempUser({ email, otp: Number(otp) });
+        } else {
+            await createTempUser({ email, otp: Number(otp) });
+        }
+
+        await sendMail(email, 'OTP Verification', otpTemplate);
+
+        res.status(StatusCodes.OK).json({ message: 'OTP sent successfully.' });
     } catch (error) {
         console.error(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });

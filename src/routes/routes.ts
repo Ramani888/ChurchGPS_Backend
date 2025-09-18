@@ -1,7 +1,7 @@
 import express from "express";
 import { validateBody } from "../middleware/bodyvalidate.middleware";
-import { signUp } from "../controllers/user.controller";
-import { signUpValidation } from "../utils/validates/user.validate";
+import { sendOtp, signUp } from "../controllers/user.controller";
+import { sendOtpValidation, signUpValidation } from "../utils/validates/user.validate";
 
 enum RouteSource {
     Body,
@@ -12,5 +12,6 @@ enum RouteSource {
 const router = express.Router();
 
 router.post('/signUp', validateBody(signUpValidation), signUp)
+router.post('/send/otp', validateBody(sendOtpValidation), sendOtp)
 
 export default router;

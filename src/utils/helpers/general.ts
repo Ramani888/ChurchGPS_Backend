@@ -34,3 +34,7 @@ export const generateUniqueUsername = async (email: string) => {
   // fallback → prefix + nanoid
   return `${prefix}${nanoid(6)}`;
 }
+
+export const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}

@@ -4,3 +4,7 @@ export const signUpValidation = {
     dob: 'required|date',
     acceptedTnC: 'required|boolean'
 };
+
+export const sendOtpValidation = {
+    email: 'required|email'
+};
