@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { nanoid } from 'nanoid';
+// Using dynamic import for nanoid
 import slugify from 'slugify';
 import { User } from '../../models/user.model';
 
@@ -31,6 +31,8 @@ export const generateUniqueUsername = async (email: string) => {
     if (!used.has(candidate)) return candidate;
   }
 
+  // Dynamically import nanoid when needed
+  const { nanoid } = await import('nanoid');
   // fallback → prefix + nanoid
   return `${prefix}${nanoid(6)}`;
 }
