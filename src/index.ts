@@ -12,7 +12,7 @@ import mongoose from "mongoose";
 dotenv.config();
 
 const app: Application = express();
-const mongoUri = process.env.DATABASE_URL || 'mongodb+srv://CVLCluster1:Ramani%407258@atlascluster.g9ls9b9.mongodb.net/FlashCard';
+const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://CVLCluster1:Ramani%407258@atlascluster.g9ls9b9.mongodb.net/ChurchGPS';
 
 mongoose.connect(mongoUri);
 const database = mongoose.connection;

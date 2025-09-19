@@ -13,7 +13,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 // Load environment variables from .env
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-const mongoUri = process.env.DATABASE_URL || 'mongodb+srv://CVLCluster1:Ramani%407258@atlascluster.g9ls9b9.mongodb.net/FlashCard';
+const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://CVLCluster1:Ramani%407258@atlascluster.g9ls9b9.mongodb.net/ChurchGPS';
 mongoose_1.default.connect(mongoUri);
 const database = mongoose_1.default.connection;
 database.on('error', (error) => {
