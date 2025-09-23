@@ -4,6 +4,8 @@ import { Response } from 'express';
 import { createTempUser, createUser, getTempUserByEmail, getUserByEmail, updateTempUser, updateUser } from "../services/user.service";
 import { comparePassword, encryptPassword, generateOTP, generateUniqueUsername } from "../utils/helpers/general";
 import sendMail from "../utils/helpers/sendMail";
+import jwt from 'jsonwebtoken';
+const env = process.env;
 
 export const signUp = async (req: AuthorizedRequest, res: Response) => {
     const bodyData = req.body;
@@ -93,7 +95,14 @@ export const login = async (req: AuthorizedRequest, res: Response) => {
         );
         if (!isPasswordValid) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Invalid password.' });
 
-        res.status(StatusCodes.OK).json({ success: true, message: 'Login successful.' });
+        const SECRET_KEY: any = env.SECRET_KEY;
+        const token = jwt.sign(
+            { userId: existingUser?._id?.toString(), username: existingUser?.username },
+            SECRET_KEY,
+            { expiresIn: '30d' } // expires in 30 days
+        );
+
+        return res.status(StatusCodes.OK).send({ user: {...existingUser, token}, success: true, message: 'Login successful.' });
     } catch (error) {
         console.error(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });

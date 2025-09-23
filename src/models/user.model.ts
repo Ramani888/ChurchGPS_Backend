@@ -46,7 +46,11 @@ const UserSchema = new mongoose.Schema({
         validator: (v: boolean) => v === true,
             message: 'Terms must be accepted'
         }
-    }
+    },
+    isProfileSetup: {
+        type: Boolean,
+        default: false
+    },
 }, { timestamps: true });
 
 const dbConnection = mongoose.connection.useDb(env.DATABASE_NAME ?? '');
