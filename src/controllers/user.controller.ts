@@ -27,6 +27,18 @@ export const signUp = async (req: AuthorizedRequest, res: Response) => {
         res.status(StatusCodes.CREATED).json({ success: true, message: 'User created successfully.' });
     } catch (error) {
         console.error(error);
+        
+        // Check if it's a mongoose validation error
+        if ((error as any).name === 'ValidationError') {
+            // Extract the first validation error message
+            const errorObj = error as { errors?: Record<string, { message: string }> };
+            const errorMessage = errorObj.errors ? Object.values(errorObj.errors)[0].message : 'Validation error';
+            return res.status(StatusCodes.BAD_REQUEST).json({ 
+                success: false, 
+                message: errorMessage 
+            });
+        }
+        
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
     }
 }
