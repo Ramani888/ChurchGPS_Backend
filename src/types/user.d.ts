@@ -11,6 +11,17 @@ export interface IUser {
   password: string;
   dob: Date;
   acceptedTnC: boolean;
+  isProfileSetup?: boolean;
+  profileUrl?: string | null;
+  profileName?: string | null;
+  bio?: string | null;
+  denomination?: string | null;
+  protestantDenomination?: string | null;
+  otherDenomination?: string | null;
+  questionnaire?: Array<{
+    questionId: number;
+    answer: string;
+  }>;
   createdAt?: Date;
   updatedAt?: Date;
 }

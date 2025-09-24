@@ -145,3 +145,19 @@ export const forgotPassword = async (req: AuthorizedRequest, res: Response) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
     }
 }
+
+export const setUpProfile = async (req: AuthorizedRequest, res: Response) => {
+    const bodyData = req?.body;
+    try {
+        const userId = req?.user?.userId;
+        if (!userId) return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
+
+        // Update user profile
+        await updateUser({ ...bodyData, _id: userId });
+
+        res.status(StatusCodes.OK).json({ success: true, message: 'Profile updated successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+}

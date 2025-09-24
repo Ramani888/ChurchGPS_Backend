@@ -23,3 +23,13 @@ export const forgotPasswordValidation = {
     email: 'email|required',
     password: 'string|required'
 };
+
+export const setUpProfileValidation = {
+    profileUrl: 'string|required',
+    profileName: 'string',
+    bio: 'string',
+    denomination: 'string|required',
+    protestantDenomination: 'string',
+    otherDenomination: 'string',
+    questionnaire: 'array|required'
+}
