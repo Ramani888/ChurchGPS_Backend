@@ -37,10 +37,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.comparePassword = exports.generateOTP = exports.generateUniqueUsername = exports.encryptPassword = void 0;
+exports.authenticateToken = authenticateToken;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 // Using dynamic import for nanoid
 const slugify_1 = __importDefault(require("slugify"));
 const user_model_1 = require("../../models/user.model");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const env = process.env;
 const encryptPassword = (password) => {
     return new Promise((resolve) => {
         bcryptjs_1.default.genSalt(5, function (err, salt) {
@@ -90,3 +93,17 @@ const comparePassword = (storedPassword, validatePassword) => {
     });
 };
 exports.comparePassword = comparePassword;
+function authenticateToken(req, res, next) {
+    const token = req.header('Authorization');
+    const SECRET_KEY = env.SECRET_KEY;
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+    jsonwebtoken_1.default.verify(token, SECRET_KEY, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+        req.user = user;
+        next();
+    });
+}

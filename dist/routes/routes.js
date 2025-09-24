@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const bodyvalidate_middleware_1 = require("../middleware/bodyvalidate.middleware");
 const user_controller_1 = require("../controllers/user.controller");
 const user_validate_1 = require("../utils/validates/user.validate");
+const general_1 = require("../utils/helpers/general");
 var RouteSource;
 (function (RouteSource) {
     RouteSource[RouteSource["Body"] = 0] = "Body";
@@ -19,4 +20,5 @@ router.post('/send/otp', (0, bodyvalidate_middleware_1.validateBody)(user_valida
 router.post('/verify/otp', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.verifyOtpValidation), user_controller_1.verifyOtp);
 router.post('/login', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.loginValidation), user_controller_1.login);
 router.post('/forgot/password', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.forgotPasswordValidation), user_controller_1.forgotPassword);
+router.put('/profile/setup', general_1.authenticateToken, (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.setUpProfileValidation), user_controller_1.setUpProfile);
 exports.default = router;

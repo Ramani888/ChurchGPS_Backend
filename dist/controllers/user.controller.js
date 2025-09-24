@@ -3,11 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.forgotPassword = exports.login = exports.verifyOtp = exports.sendOtp = exports.signUp = void 0;
+exports.setUpProfile = exports.forgotPassword = exports.login = exports.verifyOtp = exports.sendOtp = exports.signUp = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const user_service_1 = require("../services/user.service");
 const general_1 = require("../utils/helpers/general");
 const sendMail_1 = __importDefault(require("../utils/helpers/sendMail"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const env = process.env;
 const signUp = async (req, res) => {
     const bodyData = req.body;
     try {
@@ -25,6 +27,16 @@ const signUp = async (req, res) => {
     }
     catch (error) {
         console.error(error);
+        // Check if it's a mongoose validation error
+        if (error.name === 'ValidationError') {
+            // Extract the first validation error message
+            const errorObj = error;
+            const errorMessage = errorObj.errors ? Object.values(errorObj.errors)[0].message : 'Validation error';
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({
+                success: false,
+                message: errorMessage
+            });
+        }
         res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
     }
 };
@@ -87,7 +99,10 @@ const login = async (req, res) => {
             .catch((error) => resolve(false)));
         if (!isPasswordValid)
             return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({ success: false, message: 'Invalid password.' });
-        res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Login successful.' });
+        const SECRET_KEY = env.SECRET_KEY;
+        const token = jsonwebtoken_1.default.sign({ userId: existingUser?._id?.toString(), username: existingUser?.username }, SECRET_KEY, { expiresIn: '30d' } // expires in 30 days
+        );
+        return res.status(http_status_codes_1.StatusCodes.OK).send({ user: { ...existingUser, token }, success: true, message: 'Login successful.' });
     }
     catch (error) {
         console.error(error);
@@ -118,3 +133,19 @@ const forgotPassword = async (req, res) => {
     }
 };
 exports.forgotPassword = forgotPassword;
+const setUpProfile = async (req, res) => {
+    const bodyData = req?.body;
+    try {
+        const userId = req?.user?.userId;
+        if (!userId)
+            return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
+        // Update user profile
+        await (0, user_service_1.updateUser)({ ...bodyData, _id: userId });
+        res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Profile updated successfully.' });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+};
+exports.setUpProfile = setUpProfile;
