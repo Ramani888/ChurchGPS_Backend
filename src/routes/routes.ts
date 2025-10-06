@@ -1,9 +1,10 @@
 import express from "express";
 import { validateBody } from "../middleware/bodyvalidate.middleware";
-import { forgotPassword, login, sendOtp, setUpProfile, signUp, verifyOtp } from "../controllers/user.controller";
+import { forgotPassword, login, sendOtp, setUpProfile, signUp, uploadProfileImage, verifyOtp } from "../controllers/user.controller";
 import { forgotPasswordValidation, loginValidation, sendOtpValidation, setUpProfileValidation, signUpValidation, verifyOtpValidation } from "../utils/validates/user.validate";
 import { authenticateToken } from "../utils/helpers/general";
 import { set } from "mongoose";
+import upload from "./uploadConfig";
 
 enum RouteSource {
     Body,
@@ -20,5 +21,6 @@ router.post('/login', validateBody(loginValidation), login)
 router.post('/forgot/password', validateBody(forgotPasswordValidation), forgotPassword)
 
 router.put('/profile/setup', authenticateToken, validateBody(setUpProfileValidation), setUpProfile)
+router.put('/profile/image/upload', authenticateToken, upload.single('image'), uploadProfileImage)
 
 export default router;

@@ -25,7 +25,6 @@ export const forgotPasswordValidation = {
 };
 
 export const setUpProfileValidation = {
-    profileUrl: 'string|required',
     profileName: 'string',
     bio: 'string',
     denomination: 'string|required',

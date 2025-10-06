@@ -1,10 +1,12 @@
 import { AuthorizedRequest, IUser } from "../types/user.d";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
-import { createTempUser, createUser, getTempUserByEmail, getUserByEmail, updateTempUser, updateUser } from "../services/user.service";
+import { createTempUser, createUser, getTempUserByEmail, getUserByEmail, getUserById, updateTempUser, updateUser } from "../services/user.service";
 import { comparePassword, encryptPassword, generateOTP, generateUniqueUsername } from "../utils/helpers/general";
 import sendMail from "../utils/helpers/sendMail";
 import jwt from 'jsonwebtoken';
+import { uploadToS3 } from "../routes/uploadConfig";
+import { CHURCHGPS_IMAGES_V1_BUCKET_NAME } from "../utils/constants/general";
 const env = process.env;
 
 export const signUp = async (req: AuthorizedRequest, res: Response) => {
@@ -156,6 +158,30 @@ export const setUpProfile = async (req: AuthorizedRequest, res: Response) => {
         await updateUser({ ...bodyData, _id: userId });
 
         res.status(StatusCodes.OK).json({ success: true, message: 'Profile updated successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+}
+
+export const uploadProfileImage = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const userId = req?.user?.userId;
+        if (!userId) return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: 'User not found.' });
+        if (!req.file) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'No file uploaded.' });
+
+        const profileUrl = await uploadToS3(req.file, CHURCHGPS_IMAGES_V1_BUCKET_NAME);
+
+        const existingUser = await getUserById(userId);
+        if (!existingUser) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'User not found.' });
+
+        await updateUser({ 
+            ...existingUser, 
+            profileUrl: profileUrl, 
+            userName: (existingUser as any).userName ?? (existingUser as any).username 
+        });
+
+        res.status(StatusCodes.OK).json({ success: true, message: 'Profile image uploaded successfully.', profileUrl });
     } catch (error) {
         console.error(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });

@@ -13,6 +13,16 @@ export const getUserByEmail = async (email: string) => {
     }
 }
 
+export const getUserById = async (id: string) => {
+    try {
+        const objectId = new ObjectId(id);
+        const result = await User?.findById(objectId);
+        return result?.toObject();
+    } catch (err) {
+        throw err;
+    }
+}
+
 export const createUser = async (userData: IUser) => {
     try {
         const user = new User(userData);

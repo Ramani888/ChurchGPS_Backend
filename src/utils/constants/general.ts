@@ -1,0 +1,1 @@
+export const CHURCHGPS_IMAGES_V1_BUCKET_NAME = 'churchgps-images-v1';
