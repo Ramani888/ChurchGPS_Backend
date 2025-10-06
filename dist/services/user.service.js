@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTempUser = exports.getTempUserByEmail = exports.createTempUser = exports.updateUser = exports.createUser = exports.getUserByEmail = void 0;
+exports.updateTempUser = exports.getTempUserByEmail = exports.createTempUser = exports.updateUser = exports.createUser = exports.getUserById = exports.getUserByEmail = void 0;
 const tempUser_model_1 = require("../models/tempUser.model");
 const user_model_1 = require("../models/user.model");
 const mongodb_1 = require("mongodb");
@@ -15,6 +15,17 @@ const getUserByEmail = async (email) => {
     }
 };
 exports.getUserByEmail = getUserByEmail;
+const getUserById = async (id) => {
+    try {
+        const objectId = new mongodb_1.ObjectId(id);
+        const result = await user_model_1.User?.findById(objectId);
+        return result?.toObject();
+    }
+    catch (err) {
+        throw err;
+    }
+};
+exports.getUserById = getUserById;
 const createUser = async (userData) => {
     try {
         const user = new user_model_1.User(userData);

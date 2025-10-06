@@ -3,12 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setUpProfile = exports.forgotPassword = exports.login = exports.verifyOtp = exports.sendOtp = exports.signUp = void 0;
+exports.uploadProfileImage = exports.setUpProfile = exports.forgotPassword = exports.login = exports.verifyOtp = exports.sendOtp = exports.signUp = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const user_service_1 = require("../services/user.service");
 const general_1 = require("../utils/helpers/general");
 const sendMail_1 = __importDefault(require("../utils/helpers/sendMail"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const uploadConfig_1 = require("../routes/uploadConfig");
+const general_2 = require("../utils/constants/general");
 const env = process.env;
 const signUp = async (req, res) => {
     const bodyData = req.body;
@@ -149,3 +151,27 @@ const setUpProfile = async (req, res) => {
     }
 };
 exports.setUpProfile = setUpProfile;
+const uploadProfileImage = async (req, res) => {
+    try {
+        const userId = req?.user?.userId;
+        if (!userId)
+            return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({ success: false, message: 'User not found.' });
+        if (!req.file)
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({ success: false, message: 'No file uploaded.' });
+        const profileUrl = await (0, uploadConfig_1.uploadToS3)(req.file, general_2.CHURCHGPS_IMAGES_V1_BUCKET_NAME);
+        const existingUser = await (0, user_service_1.getUserById)(userId);
+        if (!existingUser)
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({ success: false, message: 'User not found.' });
+        await (0, user_service_1.updateUser)({
+            ...existingUser,
+            profileUrl: profileUrl,
+            userName: existingUser.userName ?? existingUser.username
+        });
+        res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Profile image uploaded successfully.', profileUrl });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+};
+exports.uploadProfileImage = uploadProfileImage;

@@ -23,7 +23,6 @@ exports.forgotPasswordValidation = {
     password: 'string|required'
 };
 exports.setUpProfileValidation = {
-    profileUrl: 'string|required',
     profileName: 'string',
     bio: 'string',
     denomination: 'string|required',
