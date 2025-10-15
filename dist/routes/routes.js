@@ -22,5 +22,7 @@ router.post('/verify/otp', (0, bodyvalidate_middleware_1.validateBody)(user_vali
 router.post('/login', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.loginValidation), user_controller_1.login);
 router.post('/forgot/password', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.forgotPasswordValidation), user_controller_1.forgotPassword);
 router.put('/profile/setup', general_1.authenticateToken, (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.setUpProfileValidation), user_controller_1.setUpProfile);
+router.get('/profile', general_1.authenticateToken, user_controller_1.getProfile);
 router.put('/profile/image/upload', general_1.authenticateToken, uploadConfig_1.default.single('image'), user_controller_1.uploadProfileImage);
+router.put('/profile/video/upload', general_1.authenticateToken, uploadConfig_1.default.single('video'), user_controller_1.uploadProfileVideo);
 exports.default = router;

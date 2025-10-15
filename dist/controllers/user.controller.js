@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadProfileImage = exports.setUpProfile = exports.forgotPassword = exports.login = exports.verifyOtp = exports.sendOtp = exports.signUp = void 0;
+exports.getProfile = exports.uploadProfileVideo = exports.uploadProfileImage = exports.setUpProfile = exports.forgotPassword = exports.login = exports.verifyOtp = exports.sendOtp = exports.signUp = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const user_service_1 = require("../services/user.service");
 const general_1 = require("../utils/helpers/general");
@@ -175,3 +175,43 @@ const uploadProfileImage = async (req, res) => {
     }
 };
 exports.uploadProfileImage = uploadProfileImage;
+const uploadProfileVideo = async (req, res) => {
+    try {
+        const userId = req?.user?.userId;
+        if (!userId)
+            return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({ success: false, message: 'User not found.' });
+        if (!req.file)
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({ success: false, message: 'No file uploaded.' });
+        const videoUrl = await (0, uploadConfig_1.uploadToS3)(req.file, general_2.CHURCHGPS_VIDEOS_V1_BUCKET_NAME);
+        const existingUser = await (0, user_service_1.getUserById)(userId);
+        if (!existingUser)
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({ success: false, message: 'User not found.' });
+        await (0, user_service_1.updateUser)({
+            ...existingUser,
+            videoUrl: videoUrl,
+            userName: existingUser.userName ?? existingUser.username
+        });
+        res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Profile video uploaded successfully.', videoUrl });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+};
+exports.uploadProfileVideo = uploadProfileVideo;
+const getProfile = async (req, res) => {
+    try {
+        const userId = req?.user?.userId;
+        if (!userId)
+            return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
+        const user = await (0, user_service_1.getUserById)(userId);
+        if (!user)
+            return res.status(http_status_codes_1.StatusCodes.NOT_FOUND).json({ success: false, message: 'User not found' });
+        res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, user });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+};
+exports.getProfile = getProfile;

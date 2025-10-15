@@ -70,6 +70,10 @@ const UserSchema = new mongoose_1.default.Schema({
         type: String,
         default: null
     },
+    videoUrl: {
+        type: String,
+        default: null
+    },
     profileName: {
         type: String,
         default: null
