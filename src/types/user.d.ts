@@ -13,6 +13,7 @@ export interface IUser {
   acceptedTnC: boolean;
   isProfileSetup?: boolean;
   profileUrl?: string | null;
+  videoUrl?: string | null;
   profileName?: string | null;
   bio?: string | null;
   denomination?: string | null;

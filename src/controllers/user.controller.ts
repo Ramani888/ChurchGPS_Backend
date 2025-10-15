@@ -6,7 +6,7 @@ import { comparePassword, encryptPassword, generateOTP, generateUniqueUsername }
 import sendMail from "../utils/helpers/sendMail";
 import jwt from 'jsonwebtoken';
 import { uploadToS3 } from "../routes/uploadConfig";
-import { CHURCHGPS_IMAGES_V1_BUCKET_NAME } from "../utils/constants/general";
+import { CHURCHGPS_IMAGES_V1_BUCKET_NAME, CHURCHGPS_VIDEOS_V1_BUCKET_NAME } from "../utils/constants/general";
 const env = process.env;
 
 export const signUp = async (req: AuthorizedRequest, res: Response) => {
@@ -182,6 +182,43 @@ export const uploadProfileImage = async (req: AuthorizedRequest, res: Response) 
         });
 
         res.status(StatusCodes.OK).json({ success: true, message: 'Profile image uploaded successfully.', profileUrl });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+}
+
+export const uploadProfileVideo = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const userId = req?.user?.userId;
+        if (!userId) return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: 'User not found.' });
+        if (!req.file) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'No file uploaded.' });
+
+        const videoUrl = await uploadToS3(req.file, CHURCHGPS_VIDEOS_V1_BUCKET_NAME);
+
+        const existingUser = await getUserById(userId);
+        if (!existingUser) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'User not found.' });
+
+        await updateUser({
+            ...existingUser,
+            videoUrl: videoUrl,
+            userName: (existingUser as any).userName ?? (existingUser as any).username
+        });
+
+        res.status(StatusCodes.OK).json({ success: true, message: 'Profile video uploaded successfully.', videoUrl });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+}
+
+export const getProfile = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const userId = req?.user?.userId;
+        if (!userId) return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
+        const user = await getUserById(userId);
+        if (!user) return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: 'User not found' });
+        res.status(StatusCodes.OK).json({ success: true, user });
     } catch (error) {
         console.error(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
