@@ -14,6 +14,13 @@ enum RouteSource {
 
 const router = express.Router();
 
+// Temporary test route to verify large file uploads locally (unprotected)
+// Remove this route after verification.
+router.post('/test-upload', upload.single('file'), (req, res) => {
+    if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+    return res.status(200).json({ success: true, message: 'File received', size: (req.file as any).size || null, filename: (req.file as any).originalname });
+});
+
 router.post('/signUp', validateBody(signUpValidation), signUp)
 router.post('/send/otp', validateBody(sendOtpValidation), sendOtp)
 router.post('/verify/otp', validateBody(verifyOtpValidation), verifyOtp)

@@ -2,11 +2,27 @@ import multer from 'multer';
 import { S3 } from 'aws-sdk'; // Using aws-sdk v2 for s3.upload() and deleteObject()
 import dotenv from 'dotenv';
 import { URL } from 'url'; // To help extract the file key from the S3 URL
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 dotenv.config();
 
-// Multer configuration for in-memory storage
-const storage = multer.memoryStorage();
+// Use disk storage so very large files are written to disk and streamed to S3.
+// This prevents holding large files in memory which can cause OOMs.
+const tmpDir = os.tmpdir();
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, tmpDir);
+  },
+  filename: (req, file, cb) => {
+    const filename = `${Date.now()}-${file.originalname}`;
+    cb(null, filename);
+  }
+});
+
+// No `limits` option is set here so multer won't reject files based on size.
+// Note: your hosting platform (proxy/nginx/load-balancer) may still enforce limits.
 const upload = multer({ storage });
 
 // Initialize S3 client using environment variables
@@ -21,25 +37,51 @@ export const uploadToS3 = async (
   file: Express.Multer.File,
   bucketName: string
 ): Promise<string> => {
+  // If multer used memoryStorage, `file.buffer` will exist.
+  // With diskStorage, the file will be on disk at `file.path` (filename in tmpDir).
   const fileKey = `${Date.now()}-${file.originalname}`;
+
+  // Prepare Body: either a Buffer (memory) or a read stream (disk).
+  let body: Buffer | fs.ReadStream;
+  let tempFilePath: string | undefined;
+
+  if ((file as any).buffer) {
+    body = (file as any).buffer as Buffer;
+  } else {
+    // multer with diskStorage should add a `path` or `filename` relative to dest
+    // prefer `path` (node-multer sets `path` on disk storage files)
+    tempFilePath = (file as any).path || path.join(tmpDir, (file as any).filename || file.originalname);
+    if (!tempFilePath) throw new Error('Temp file path not available for upload');
+    body = fs.createReadStream(tempFilePath);
+  }
 
   const params = {
     Bucket: bucketName,
     Key: fileKey,
-    Body: file.buffer,
+    Body: body,
     ContentType: file.mimetype,
   };
 
   try {
     const uploadResult = await s3.upload(params).promise();
 
-    // ✅ Construct a full S3 path (not public, just a reference)
     const filePath = `https://${bucketName}.s3.amazonaws.com/${fileKey}`;
 
     return filePath;
   } catch (error) {
     console.error('Error uploading to S3:', error);
     throw new Error('Error uploading to S3');
+  } finally {
+    // Clean up temp file if we created a read stream from disk
+    try {
+      if (tempFilePath) {
+        fs.unlink(tempFilePath, (err) => {
+          if (err) console.warn('Failed to remove temp file:', tempFilePath, err);
+        });
+      }
+    } catch (e) {
+      // ignore cleanup errors
+    }
   }
 };
 
