@@ -24,8 +24,8 @@ const signUp = async (req, res) => {
         const newPassword = await (0, general_1.encryptPassword)(bodyData?.password);
         // Create Username
         const newUserName = await (0, general_1.generateUniqueUsername)(email);
-        await (0, user_service_1.createUser)({ ...bodyData, email: email, password: newPassword, username: newUserName });
-        res.status(http_status_codes_1.StatusCodes.CREATED).json({ success: true, message: 'User created successfully.' });
+        const user = await (0, user_service_1.createUser)({ ...bodyData, email: email, password: newPassword, username: newUserName });
+        res.status(http_status_codes_1.StatusCodes.CREATED).json({ user, success: true, message: 'User created successfully.' });
     }
     catch (error) {
         console.error(error);

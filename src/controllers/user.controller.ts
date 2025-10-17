@@ -24,9 +24,9 @@ export const signUp = async (req: AuthorizedRequest, res: Response) => {
         // Create Username
         const newUserName = await generateUniqueUsername(email);
 
-        await createUser({...bodyData, email: email, password: newPassword, username: newUserName});
+        const user = await createUser({...bodyData, email: email, password: newPassword, username: newUserName});
 
-        res.status(StatusCodes.CREATED).json({ success: true, message: 'User created successfully.' });
+        res.status(StatusCodes.CREATED).json({ user, success: true, message: 'User created successfully.' });
     } catch (error) {
         console.error(error);
         
