@@ -25,6 +25,7 @@ export const forgotPasswordValidation = {
 };
 
 export const setUpProfileValidation = {
+    _id: 'string|required',
     profileName: 'string|required',
     username: 'string|required',
     bio: 'string',
@@ -33,3 +34,7 @@ export const setUpProfileValidation = {
     otherDenomination: 'string',
     questionnaire: 'array'
 }
+
+export const uploadProfileImageValidation = {
+    _id: 'string|required'
+};

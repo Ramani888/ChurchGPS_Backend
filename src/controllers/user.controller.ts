@@ -151,7 +151,7 @@ export const forgotPassword = async (req: AuthorizedRequest, res: Response) => {
 export const setUpProfile = async (req: AuthorizedRequest, res: Response) => {
     const bodyData = req?.body;
     try {
-        const userId = req?.user?.userId;
+        const userId = req?.user?.userId ?? bodyData?._id?.toString();
         if (!userId) return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
 
         // Update user profile
@@ -166,7 +166,7 @@ export const setUpProfile = async (req: AuthorizedRequest, res: Response) => {
 
 export const uploadProfileImage = async (req: AuthorizedRequest, res: Response) => {
     try {
-        const userId = req?.user?.userId;
+        const userId = req?.user?.userId ?? req.body?._id?.toString();
         if (!userId) return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: 'User not found.' });
         if (!req.file) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'No file uploaded.' });
 

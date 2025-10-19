@@ -1,7 +1,7 @@
 import express from "express";
 import { validateBody } from "../middleware/bodyvalidate.middleware";
 import { forgotPassword, getProfile, login, sendOtp, setUpProfile, signUp, uploadProfileImage, uploadProfileVideo, verifyOtp } from "../controllers/user.controller";
-import { forgotPasswordValidation, loginValidation, sendOtpValidation, setUpProfileValidation, signUpValidation, verifyOtpValidation } from "../utils/validates/user.validate";
+import { forgotPasswordValidation, loginValidation, sendOtpValidation, setUpProfileValidation, signUpValidation, uploadProfileImageValidation, verifyOtpValidation } from "../utils/validates/user.validate";
 import { authenticateToken } from "../utils/helpers/general";
 import { set } from "mongoose";
 import upload from "./uploadConfig";
@@ -29,7 +29,7 @@ router.post('/forgot/password', validateBody(forgotPasswordValidation), forgotPa
 
 router.put('/profile/setup', validateBody(setUpProfileValidation), setUpProfile)
 router.get('/profile', authenticateToken, getProfile)
-router.put('/profile/image/upload', upload.single('image'), uploadProfileImage)
+router.put('/profile/image/upload', upload.single('image'), validateBody(uploadProfileImageValidation), uploadProfileImage)
 router.put('/profile/video/upload', authenticateToken, upload.single('video'), uploadProfileVideo)
 
 export default router;
