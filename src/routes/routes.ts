@@ -27,7 +27,7 @@ router.post('/verify/otp', validateBody(verifyOtpValidation), verifyOtp)
 router.post('/login', validateBody(loginValidation), login)
 router.post('/forgot/password', validateBody(forgotPasswordValidation), forgotPassword)
 
-router.put('/profile/setup', authenticateToken, validateBody(setUpProfileValidation), setUpProfile)
+router.put('/profile/setup', validateBody(setUpProfileValidation), setUpProfile)
 router.get('/profile', authenticateToken, getProfile)
 router.put('/profile/image/upload', authenticateToken, upload.single('image'), uploadProfileImage)
 router.put('/profile/video/upload', authenticateToken, upload.single('video'), uploadProfileVideo)
