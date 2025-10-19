@@ -23,10 +23,11 @@ exports.forgotPasswordValidation = {
     password: 'string|required'
 };
 exports.setUpProfileValidation = {
-    profileName: 'string',
+    profileName: 'string|required',
+    username: 'string|required',
     bio: 'string',
-    denomination: 'string|required',
+    denomination: 'string',
     protestantDenomination: 'string',
     otherDenomination: 'string',
-    questionnaire: 'array|required'
+    questionnaire: 'array'
 };
