@@ -9,6 +9,8 @@ const user_controller_1 = require("../controllers/user.controller");
 const user_validate_1 = require("../utils/validates/user.validate");
 const general_1 = require("../utils/helpers/general");
 const uploadConfig_1 = __importDefault(require("./uploadConfig"));
+const gathering_controller_1 = require("../controllers/gathering.controller");
+const gathering_validate_1 = require("../utils/validates/gathering.validate");
 var RouteSource;
 (function (RouteSource) {
     RouteSource[RouteSource["Body"] = 0] = "Body";
@@ -30,6 +32,9 @@ router.post('/login', (0, bodyvalidate_middleware_1.validateBody)(user_validate_
 router.post('/forgot/password', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.forgotPasswordValidation), user_controller_1.forgotPassword);
 router.put('/profile/setup', (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.setUpProfileValidation), user_controller_1.setUpProfile);
 router.get('/profile', general_1.authenticateToken, user_controller_1.getProfile);
-router.put('/profile/image/upload', uploadConfig_1.default.single('image'), user_controller_1.uploadProfileImage);
+router.put('/profile/image/upload', uploadConfig_1.default.single('image'), (0, bodyvalidate_middleware_1.validateBody)(user_validate_1.uploadProfileImageValidation), user_controller_1.uploadProfileImage);
 router.put('/profile/video/upload', general_1.authenticateToken, uploadConfig_1.default.single('video'), user_controller_1.uploadProfileVideo);
+router.post('/gathering', general_1.authenticateToken, (0, bodyvalidate_middleware_1.validateBody)(gathering_validate_1.createGatheringValidation), gathering_controller_1.createGathering);
+router.post('/gathering/profile/upload', general_1.authenticateToken, uploadConfig_1.default.single('image'), (0, bodyvalidate_middleware_1.validateBody)(gathering_validate_1.uploadGatheringImageValidation, RouteSource.Query), gathering_controller_1.uploadGatheringProfile);
+router.get('/gathering', general_1.authenticateToken, gathering_controller_1.getGathering);
 exports.default = router;

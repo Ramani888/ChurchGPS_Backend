@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setUpProfileValidation = exports.forgotPasswordValidation = exports.loginValidation = exports.verifyOtpValidation = exports.sendOtpValidation = exports.signUpValidation = void 0;
+exports.uploadProfileImageValidation = exports.setUpProfileValidation = exports.forgotPasswordValidation = exports.loginValidation = exports.verifyOtpValidation = exports.sendOtpValidation = exports.signUpValidation = void 0;
 exports.signUpValidation = {
     email: 'email|required',
     password: 'string|required',
@@ -23,6 +23,7 @@ exports.forgotPasswordValidation = {
     password: 'string|required'
 };
 exports.setUpProfileValidation = {
+    _id: 'string|required',
     profileName: 'string|required',
     username: 'string|required',
     bio: 'string',
@@ -30,4 +31,7 @@ exports.setUpProfileValidation = {
     protestantDenomination: 'string',
     otherDenomination: 'string',
     questionnaire: 'array'
+};
+exports.uploadProfileImageValidation = {
+    _id: 'string|required'
 };

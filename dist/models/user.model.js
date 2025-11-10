@@ -97,6 +97,11 @@ const UserSchema = new mongoose_1.default.Schema({
     questionnaire: {
         type: [QuestionnaireSchema],
         default: []
+    },
+    referralCode: {
+        type: String,
+        unique: true,
+        sparse: true
     }
 }, { timestamps: true });
 const dbConnection = mongoose_1.default.connection.useDb(env.DATABASE_NAME ?? '');

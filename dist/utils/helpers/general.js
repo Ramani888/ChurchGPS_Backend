@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.comparePassword = exports.generateOTP = exports.generateUniqueUsername = exports.encryptPassword = void 0;
+exports.generateReferralCode = exports.comparePassword = exports.generateOTP = exports.generateUniqueUsername = exports.encryptPassword = void 0;
 exports.authenticateToken = authenticateToken;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 // Using dynamic import for nanoid
@@ -107,3 +107,12 @@ function authenticateToken(req, res, next) {
         next();
     });
 }
+const generateReferralCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+};
+exports.generateReferralCode = generateReferralCode;

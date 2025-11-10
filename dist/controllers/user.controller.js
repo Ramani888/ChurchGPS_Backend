@@ -24,7 +24,9 @@ const signUp = async (req, res) => {
         const newPassword = await (0, general_1.encryptPassword)(bodyData?.password);
         // Create Username
         const newUserName = await (0, general_1.generateUniqueUsername)(email);
-        const user = await (0, user_service_1.createUser)({ ...bodyData, email: email, password: newPassword, username: newUserName });
+        // Create Refferal Code
+        const referralCode = (0, general_1.generateReferralCode)();
+        const user = await (0, user_service_1.createUser)({ ...bodyData, email: email, password: newPassword, username: newUserName, referralCode });
         res.status(http_status_codes_1.StatusCodes.CREATED).json({ user, success: true, message: 'User created successfully.' });
     }
     catch (error) {
@@ -125,7 +127,8 @@ const forgotPassword = async (req, res) => {
         await (0, user_service_1.updateUser)({
             ...existingUser,
             password: String(newPassword),
-            userName: existingUser.userName ?? existingUser.username
+            userName: existingUser.userName ?? existingUser.username,
+            referralCode: existingUser.referralCode ?? undefined
         });
         res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Password reset successfully.' });
     }
@@ -138,7 +141,7 @@ exports.forgotPassword = forgotPassword;
 const setUpProfile = async (req, res) => {
     const bodyData = req?.body;
     try {
-        const userId = req?.user?.userId;
+        const userId = req?.user?.userId ?? bodyData?._id?.toString();
         if (!userId)
             return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
         // Update user profile
@@ -153,7 +156,7 @@ const setUpProfile = async (req, res) => {
 exports.setUpProfile = setUpProfile;
 const uploadProfileImage = async (req, res) => {
     try {
-        const userId = req?.user?.userId;
+        const userId = req?.user?.userId ?? req.body?._id?.toString();
         if (!userId)
             return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).json({ success: false, message: 'User not found.' });
         if (!req.file)
@@ -165,7 +168,8 @@ const uploadProfileImage = async (req, res) => {
         await (0, user_service_1.updateUser)({
             ...existingUser,
             profileUrl: profileUrl,
-            userName: existingUser.userName ?? existingUser.username
+            userName: existingUser.userName ?? existingUser.username,
+            referralCode: existingUser.referralCode ?? undefined
         });
         res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Profile image uploaded successfully.', profileUrl });
     }
@@ -189,7 +193,8 @@ const uploadProfileVideo = async (req, res) => {
         await (0, user_service_1.updateUser)({
             ...existingUser,
             videoUrl: videoUrl,
-            userName: existingUser.userName ?? existingUser.username
+            userName: existingUser.userName ?? existingUser.username,
+            referralCode: existingUser.referralCode ?? undefined
         });
         res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Profile video uploaded successfully.', videoUrl });
     }
