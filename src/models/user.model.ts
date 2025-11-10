@@ -94,6 +94,11 @@ const UserSchema = new mongoose.Schema({
     questionnaire: {
         type: [QuestionnaireSchema],
         default: []
+    },
+    referralCode: {
+        type: String,
+        unique: true,
+        sparse: true
     }
 }, { timestamps: true });
 

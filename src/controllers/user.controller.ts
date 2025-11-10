@@ -2,7 +2,7 @@ import { AuthorizedRequest, IUser } from "../types/user.d";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
 import { createTempUser, createUser, getTempUserByEmail, getUserByEmail, getUserById, updateTempUser, updateUser } from "../services/user.service";
-import { comparePassword, encryptPassword, generateOTP, generateUniqueUsername } from "../utils/helpers/general";
+import { comparePassword, encryptPassword, generateOTP, generateReferralCode, generateUniqueUsername } from "../utils/helpers/general";
 import sendMail from "../utils/helpers/sendMail";
 import jwt from 'jsonwebtoken';
 import { uploadToS3 } from "../routes/uploadConfig";
@@ -24,7 +24,10 @@ export const signUp = async (req: AuthorizedRequest, res: Response) => {
         // Create Username
         const newUserName = await generateUniqueUsername(email);
 
-        const user = await createUser({...bodyData, email: email, password: newPassword, username: newUserName});
+        // Create Refferal Code
+        const referralCode = generateReferralCode();
+
+        const user = await createUser({...bodyData, email: email, password: newPassword, username: newUserName, referralCode });
 
         res.status(StatusCodes.CREATED).json({ user, success: true, message: 'User created successfully.' });
     } catch (error) {
@@ -138,7 +141,8 @@ export const forgotPassword = async (req: AuthorizedRequest, res: Response) => {
         await updateUser({ 
             ...existingUser, 
             password: String(newPassword), 
-            userName: (existingUser as any).userName ?? (existingUser as any).username 
+            userName: (existingUser as any).userName ?? (existingUser as any).username,
+            referralCode: existingUser.referralCode ?? undefined
         });
 
         res.status(StatusCodes.OK).json({ success: true, message: 'Password reset successfully.' });
@@ -178,7 +182,8 @@ export const uploadProfileImage = async (req: AuthorizedRequest, res: Response) 
         await updateUser({ 
             ...existingUser, 
             profileUrl: profileUrl, 
-            userName: (existingUser as any).userName ?? (existingUser as any).username 
+            userName: (existingUser as any).userName ?? (existingUser as any).username,
+            referralCode: existingUser.referralCode ?? undefined
         });
 
         res.status(StatusCodes.OK).json({ success: true, message: 'Profile image uploaded successfully.', profileUrl });
@@ -202,7 +207,8 @@ export const uploadProfileVideo = async (req: AuthorizedRequest, res: Response) 
         await updateUser({
             ...existingUser,
             videoUrl: videoUrl,
-            userName: (existingUser as any).userName ?? (existingUser as any).username
+            userName: (existingUser as any).userName ?? (existingUser as any).username,
+            referralCode: existingUser.referralCode ?? undefined
         });
 
         res.status(StatusCodes.OK).json({ success: true, message: 'Profile video uploaded successfully.', videoUrl });

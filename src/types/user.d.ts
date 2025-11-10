@@ -23,6 +23,7 @@ export interface IUser {
     questionId: number;
     answer: string;
   }>;
+  referralCode?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
