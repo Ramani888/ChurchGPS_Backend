@@ -5,6 +5,8 @@ import { forgotPasswordValidation, loginValidation, sendOtpValidation, setUpProf
 import { authenticateToken } from "../utils/helpers/general";
 import { set } from "mongoose";
 import upload from "./uploadConfig";
+import { createGathering, getGathering, uploadGatheringProfile } from "../controllers/gathering.controller";
+import { createGatheringValidation, uploadGatheringImageValidation } from "../utils/validates/gathering.validate";
 
 enum RouteSource {
     Body,
@@ -31,5 +33,9 @@ router.put('/profile/setup', validateBody(setUpProfileValidation), setUpProfile)
 router.get('/profile', authenticateToken, getProfile)
 router.put('/profile/image/upload', upload.single('image'), validateBody(uploadProfileImageValidation), uploadProfileImage)
 router.put('/profile/video/upload', authenticateToken, upload.single('video'), uploadProfileVideo)
+
+router.post('/gathering', authenticateToken, validateBody(createGatheringValidation), createGathering);
+router.post('/gathering/profile/upload', authenticateToken, upload.single('image'), validateBody(uploadGatheringImageValidation, RouteSource.Query), uploadGatheringProfile);
+router.get('/gathering', authenticateToken, getGathering);
 
 export default router;
