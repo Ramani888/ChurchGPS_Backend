@@ -8,8 +8,8 @@ export interface IUser {
   _id?: ObjectId;
   email: string;
   userName: string;
-  password: string;
-  dob: Date;
+  password?: string;
+  dob?: Date;
   acceptedTnC: boolean;
   isProfileSetup?: boolean;
   profileUrl?: string | null;
@@ -24,6 +24,8 @@ export interface IUser {
     answer: string;
   }>;
   referralCode?: string;
+  googleId?: string;
+  authProvider?: 'local' | 'google';
   createdAt?: Date;
   updatedAt?: Date;
 }

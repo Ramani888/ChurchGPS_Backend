@@ -34,11 +34,12 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: false,
+        default: null
     },
     dob: {
         type: Date,
-        required: true,
+        required: false,
         validate: {
         validator: function(value: Date) {
             // require 18+ at time of creation
@@ -99,6 +100,17 @@ const UserSchema = new mongoose.Schema({
         type: String,
         unique: true,
         sparse: true
+    },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true,
+        default: null
+    },
+    authProvider: {
+        type: String,
+        enum: ['local', 'google'],
+        default: 'local'
     }
 }, { timestamps: true });
 

@@ -1,7 +1,7 @@
 import { AuthorizedRequest, IUser } from "../types/user.d";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
-import { createTempUser, createUser, getTempUserByEmail, getUserByEmail, getUserById, updateTempUser, updateUser } from "../services/user.service";
+import { createTempUser, createUser, getTempUserByEmail, getUserByEmail, getUserById, updateTempUser, updateUser, getUserByGoogleId } from "../services/user.service";
 import { comparePassword, encryptPassword, generateOTP, generateReferralCode, generateUniqueUsername } from "../utils/helpers/general";
 import sendMail from "../utils/helpers/sendMail";
 import jwt from 'jsonwebtoken';
@@ -97,8 +97,83 @@ export const verifyOtp = async (req: AuthorizedRequest, res: Response) => {
 export const login = async (req: AuthorizedRequest, res: Response) => {
     const bodyData = req.body;
     try {
+        const authProvider = bodyData?.authProvider || 'local';
+
+        // Google Sign-In
+        if (authProvider === 'google') {
+            const googleId = bodyData?.googleId;
+            const email = bodyData?.email?.toLowerCase();
+            const displayName = bodyData?.displayName;
+            const profilePicture = bodyData?.profilePicture;
+
+            if (!googleId || !email) {
+                return res.status(StatusCodes.BAD_REQUEST).json({ 
+                    success: false, 
+                    message: 'Google ID and email are required.' 
+                });
+            }
+
+            // Try to find user by Google ID first
+            let user = await getUserByGoogleId(googleId);
+
+            // If not found, try to find by email
+            if (!user) {
+                user = await getUserByEmail(email);
+                
+                // If user exists but doesn't have googleId, update them
+                if (user) {
+                    await updateUser({
+                        _id: user._id,
+                        email: user.email,
+                        userName: (user as any).userName ?? (user as any).username,
+                        googleId,
+                        authProvider: 'google',
+                        profileUrl: profilePicture || user.profileUrl,
+                        referralCode: user.referralCode,
+                        acceptedTnC: user.acceptedTnC,
+                    } as IUser);
+                } else {
+                    // Create new user with Google info
+                    const newUserName = await generateUniqueUsername(email);
+                    const referralCode = generateReferralCode();
+                    user = await createUser({
+                        email,
+                        username: newUserName,
+                        userName: newUserName,
+                        googleId,
+                        authProvider: 'google',
+                        profileName: displayName,
+                        profileUrl: profilePicture,
+                        acceptedTnC: true,
+                        referralCode
+                    } as IUser);
+                }
+            }
+
+            const SECRET_KEY: any = env.SECRET_KEY;
+            const token = jwt.sign(
+                { userId: user?._id?.toString(), username: user?.username },
+                SECRET_KEY,
+                { expiresIn: '30d' }
+            );
+
+            return res.status(StatusCodes.OK).json({ 
+                user: { ...user, token }, 
+                success: true, 
+                message: 'Google login successful.' 
+            });
+        }
+
+        // Local Email/Password Sign-In
         const email = bodyData?.email?.toLowerCase();
         const password = bodyData?.password;
+
+        if (!email || !password) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ 
+                success: false, 
+                message: 'Email and password are required for local login.' 
+            });
+        }
 
         // Check if the user exists
         const existingUser = await getUserByEmail(email);
@@ -138,12 +213,14 @@ export const forgotPassword = async (req: AuthorizedRequest, res: Response) => {
         // Encrypt Password
         const newPassword = await encryptPassword(bodyData?.password);
 
-        await updateUser({ 
-            ...existingUser, 
-            password: String(newPassword), 
+        await updateUser({
+            _id: existingUser._id,
+            email: existingUser.email,
             userName: (existingUser as any).userName ?? (existingUser as any).username,
-            referralCode: existingUser.referralCode ?? undefined
-        });
+            password: String(newPassword),
+            referralCode: existingUser.referralCode,
+            acceptedTnC: existingUser.acceptedTnC,
+        } as IUser);
 
         res.status(StatusCodes.OK).json({ success: true, message: 'Password reset successfully.' });
     } catch (error) {
@@ -179,12 +256,14 @@ export const uploadProfileImage = async (req: AuthorizedRequest, res: Response) 
         const existingUser = await getUserById(userId);
         if (!existingUser) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'User not found.' });
 
-        await updateUser({ 
-            ...existingUser, 
-            profileUrl: profileUrl, 
+        await updateUser({
+            _id: existingUser._id,
+            email: existingUser.email,
             userName: (existingUser as any).userName ?? (existingUser as any).username,
-            referralCode: existingUser.referralCode ?? undefined
-        });
+            profileUrl: profileUrl,
+            referralCode: existingUser.referralCode,
+            acceptedTnC: existingUser.acceptedTnC,
+        } as IUser);
 
         res.status(StatusCodes.OK).json({ success: true, message: 'Profile image uploaded successfully.', profileUrl });
     } catch (error) {
@@ -205,11 +284,13 @@ export const uploadProfileVideo = async (req: AuthorizedRequest, res: Response) 
         if (!existingUser) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'User not found.' });
 
         await updateUser({
-            ...existingUser,
-            videoUrl: videoUrl,
+            _id: existingUser._id,
+            email: existingUser.email,
             userName: (existingUser as any).userName ?? (existingUser as any).username,
-            referralCode: existingUser.referralCode ?? undefined
-        });
+            videoUrl: videoUrl,
+            referralCode: existingUser.referralCode,
+            acceptedTnC: existingUser.acceptedTnC,
+        } as IUser);
 
         res.status(StatusCodes.OK).json({ success: true, message: 'Profile video uploaded successfully.', videoUrl });
     } catch (error) {

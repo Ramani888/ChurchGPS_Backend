@@ -15,8 +15,10 @@ export const verifyOtpValidation = {
 };
 
 export const loginValidation = {
-    email: 'email|required',
-    password: 'string|required'
+    email: 'email',
+    password: 'string',
+    googleId: 'string',
+    authProvider: 'string'
 };
 
 export const forgotPasswordValidation = {
