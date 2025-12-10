@@ -8,7 +8,7 @@ export interface IUser {
   _id?: ObjectId;
   email: string;
   userName: string;
-  password?: string;
+  password?: string | null;
   dob?: Date;
   acceptedTnC: boolean;
   isProfileSetup?: boolean;

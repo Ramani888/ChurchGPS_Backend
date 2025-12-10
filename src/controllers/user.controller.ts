@@ -12,24 +12,16 @@ const env = process.env;
 export const signUp = async (req: AuthorizedRequest, res: Response) => {
     const bodyData = req.body;
     try {
+        const authProvider = bodyData?.authProvider || 'local';
         const email = bodyData?.email?.toLowerCase();
 
-        // Check if the user already exists
-        const existingUser = await getUserByEmail(email);
-        if (existingUser) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'User already exists.' });
+        // Google Sign-Up
+        if (authProvider === 'google') {
+            return googleSignUp(req, res, bodyData, email);
+        }
 
-        // Encrypt Password
-        const newPassword = await encryptPassword(bodyData?.password);
-
-        // Create Username
-        const newUserName = await generateUniqueUsername(email);
-
-        // Create Refferal Code
-        const referralCode = generateReferralCode();
-
-        const user = await createUser({...bodyData, email: email, password: newPassword, username: newUserName, referralCode });
-
-        res.status(StatusCodes.CREATED).json({ user, success: true, message: 'User created successfully.' });
+        // Local Sign-Up
+        return localSignUp(req, res, bodyData, email);
     } catch (error) {
         console.error(error);
         
@@ -45,6 +37,116 @@ export const signUp = async (req: AuthorizedRequest, res: Response) => {
         }
         
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+}
+
+// Local Sign-Up Helper
+const localSignUp = async (req: AuthorizedRequest, res: Response, bodyData: any, email: string) => {
+    try {
+        // Check if the user already exists
+        const existingUser = await getUserByEmail(email);
+        if (existingUser) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ 
+                success: false, 
+                message: 'User already exists.' 
+            });
+        }
+
+        // Validate required fields for local signup
+        if (!bodyData?.password || !bodyData?.dob) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ 
+                success: false, 
+                message: 'Password and date of birth are required for local signup.' 
+            });
+        }
+
+        // Encrypt Password
+        const newPassword = await encryptPassword(bodyData.password);
+
+        // Create Username
+        const newUserName = await generateUniqueUsername(email);
+
+        // Create Referral Code
+        const referralCode = generateReferralCode();
+
+        const user = await createUser({
+            ...bodyData, 
+            email, 
+            password: newPassword, 
+            username: newUserName, 
+            userName: newUserName,
+            referralCode,
+            authProvider: 'local'
+        });
+
+        res.status(StatusCodes.CREATED).json({ 
+            user, 
+            success: true, 
+            message: 'User created successfully.' 
+        });
+    } catch (error) {
+        throw error;
+    }
+}
+
+// Google Sign-Up Helper
+const googleSignUp = async (req: AuthorizedRequest, res: Response, bodyData: any, email: string) => {
+    try {
+        const googleId = bodyData?.googleId;
+        const displayName = bodyData?.displayName;
+        const profilePicture = bodyData?.profilePicture;
+
+        // Validate required fields for Google signup
+        if (!googleId || !email) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ 
+                success: false, 
+                message: 'Google ID and email are required.' 
+            });
+        }
+
+        // Check if user already exists by googleId
+        let existingUser = await getUserByGoogleId(googleId);
+        if (existingUser) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ 
+                success: false, 
+                message: 'User account already exists with this Google ID.' 
+            });
+        }
+
+        // Check if email is already registered
+        existingUser = await getUserByEmail(email);
+        if (existingUser) {
+            // Email exists but no googleId - user can link Google account in settings
+            return res.status(StatusCodes.BAD_REQUEST).json({ 
+                success: false, 
+                message: 'Email already registered. Please login or use a different email.' 
+            });
+        }
+
+        // Create new user with Google info
+        const newUserName = await generateUniqueUsername(email);
+        const referralCode = generateReferralCode();
+
+        const user = await createUser({
+            email,
+            username: newUserName,
+            userName: newUserName,
+            googleId,
+            authProvider: 'google',
+            profileName: displayName || null,
+            profileUrl: profilePicture || null,
+            acceptedTnC: bodyData?.acceptedTnC || true,
+            referralCode,
+            password: null // No password for Google auth
+        } as IUser);
+
+        res.status(StatusCodes.CREATED).json({ 
+            user, 
+            success: true, 
+            message: 'User created successfully with Google account.' 
+        });
+    } catch (error) {
+        throw error;
     }
 }
 
