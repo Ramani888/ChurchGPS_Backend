@@ -1,8 +1,12 @@
 export const signUpValidation = {
     email: 'email|required',
-    password: 'string|required',
-    dob: 'date|required',
-    acceptedTnC: 'boolean|required'
+    password: 'string',
+    dob: 'date',
+    acceptedTnC: 'boolean|required',
+    authProvider: 'string',
+    googleId: 'string',
+    displayName: 'string',
+    profilePicture: 'string'
 };
 
 export const sendOtpValidation = {
@@ -15,8 +19,10 @@ export const verifyOtpValidation = {
 };
 
 export const loginValidation = {
-    email: 'email|required',
-    password: 'string|required'
+    email: 'email',
+    password: 'string',
+    googleId: 'string',
+    authProvider: 'string'
 };
 
 export const forgotPasswordValidation = {

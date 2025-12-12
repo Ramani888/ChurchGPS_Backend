@@ -56,6 +56,15 @@ export const createTempUser = async (userData: ITempUser) => {
     }
 }
 
+export const getUserByGoogleId = async (googleId: string) => {
+    try {
+        const result = await User?.findOne({ googleId });
+        return result?.toObject();
+    } catch (err) {
+        throw err;
+    }
+}
+
 export const getTempUserByEmail = async (email: string) => {
     try {
         const updatedEmail = email?.toLowerCase();
