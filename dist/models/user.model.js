@@ -37,11 +37,12 @@ const UserSchema = new mongoose_1.default.Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: false,
+        default: null
     },
     dob: {
         type: Date,
-        required: true,
+        required: false,
         validate: {
             validator: function (value) {
                 // require 18+ at time of creation
@@ -102,6 +103,17 @@ const UserSchema = new mongoose_1.default.Schema({
         type: String,
         unique: true,
         sparse: true
+    },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true,
+        default: null
+    },
+    authProvider: {
+        type: String,
+        enum: ['local', 'google'],
+        default: 'local'
     }
 }, { timestamps: true });
 const dbConnection = mongoose_1.default.connection.useDb(env.DATABASE_NAME ?? '');
