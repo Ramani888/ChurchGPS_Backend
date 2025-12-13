@@ -1,5 +1,6 @@
 import { Gathering } from "../models/gathering.model";
-import { IGathering } from "../types/gathering";
+import { GatheringSave } from "../models/gatheringSave.model";
+import { IGathering, IGatheringSave } from "../types/gathering";
 import { ObjectId } from 'mongodb';
 
 export const createGatheringData = async (data: IGathering) => {
@@ -38,17 +39,49 @@ export const getGatheringByUserId = async (userId: string) => {
     try {
         const gathering = await Gathering.find({ userId: userId?.toString() }).lean();
 
+        // Get all saved gatherings for this user
+        const savedGatherings = await GatheringSave.find({ userId: userId?.toString() }).lean();
+        const savedGatheringIds = new Set(savedGatherings.map(sg => sg.gatheringId?.toString()));
+
         const modifiedGatherings = gathering?.map((g) => {
             const primaryCategory = g?.categories?.[0] ?? null;
             const isChurchLeader = g?.locationTypes?.includes("Church Building");
+            const isSaved = savedGatheringIds.has(g._id?.toString());
             return {
                 ...g,
                 primaryCategory,
-                isChurchLeader
+                isChurchLeader,
+                isSaved
             };
         });
 
         return modifiedGatherings;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const createGatheringSaveData = async (data: IGatheringSave) => {
+    try {
+        const gatheringSave = new GatheringSave(data);
+        await gatheringSave.save();
+        return gatheringSave.toObject();
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const removeSavedGatheringData = async (gatheringId: string, userId: string) => {
+    try {
+        await GatheringSave.deleteOne({ gatheringId: gatheringId?.toString(), userId: userId?.toString() });
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const removeAllSavedGatheringData = async (userId: string) => {
+    try {
+        await GatheringSave.deleteMany({ userId: userId?.toString() });
     } catch (err) {
         throw err;
     }

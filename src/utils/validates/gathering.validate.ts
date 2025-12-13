@@ -16,3 +16,11 @@ export const createGatheringValidation = {
 export const uploadGatheringImageValidation = {
     gatheringId: 'string|required'
 };
+
+export const createGatheringSaveValidation = {
+    gatheringId: 'string|required'
+};
+
+export const removeGatheringSaveValidation = {
+    gatheringId: 'string|required'
+}

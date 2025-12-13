@@ -18,3 +18,11 @@ export interface IGathering {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface IGatheringSave {
+  _id?: string;
+  userId: string;
+  gatheringId: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
