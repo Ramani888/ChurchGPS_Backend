@@ -1,7 +1,7 @@
 import { AuthorizedRequest, IUser } from "../types/user.d";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
-import { createGatheringData, createGatheringSaveData, getGatheringById, getGatheringByUserId, removeAllSavedGatheringData, removeSavedGatheringData, updateGatheringData } from "../services/gathering.service";
+import { createGatheringData, createGatheringSaveData, getGatheringById, getGatheringByUserId, getSavedGatheringsByUserId, removeAllSavedGatheringData, removeSavedGatheringData, updateGatheringData } from "../services/gathering.service";
 import { uploadToS3 } from "../routes/uploadConfig";
 import { CHURCHGPS_IMAGES_V1_BUCKET_NAME } from "../utils/constants/general";
 
@@ -58,6 +58,19 @@ export const getGathering = async (req: AuthorizedRequest, res: Response) => {
         if (!gathering) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Gathering not found.' });
 
         res.status(StatusCodes.OK).json({ success: true, data: gathering, message: 'Gathering fetched successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+}
+
+export const getSavedGathering = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const userId = req?.user?.userId;
+
+        const gatheringSaves = await getSavedGatheringsByUserId(userId);
+
+        res.status(StatusCodes.OK).json({ success: true, data: gatheringSaves, message: 'Saved gatherings fetched successfully.' });
     } catch (error) {
         console.error(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });

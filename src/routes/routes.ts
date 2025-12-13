@@ -5,7 +5,7 @@ import { forgotPasswordValidation, loginValidation, sendOtpValidation, setUpProf
 import { authenticateToken } from "../utils/helpers/general";
 import { set } from "mongoose";
 import upload from "./uploadConfig";
-import { createGathering, createGatheringSave, getGathering, removeAllSavedGathering, removeSavedGathering, uploadGatheringProfile } from "../controllers/gathering.controller";
+import { createGathering, createGatheringSave, getGathering, getSavedGathering, removeAllSavedGathering, removeSavedGathering, uploadGatheringProfile } from "../controllers/gathering.controller";
 import { createGatheringSaveValidation, createGatheringValidation, removeGatheringSaveValidation, uploadGatheringImageValidation } from "../utils/validates/gathering.validate";
 
 enum RouteSource {
@@ -37,6 +37,7 @@ router.put('/profile/video/upload', authenticateToken, upload.single('video'), u
 router.post('/gathering', authenticateToken, validateBody(createGatheringValidation), createGathering);
 router.post('/gathering/profile/upload', authenticateToken, upload.single('image'), validateBody(uploadGatheringImageValidation, RouteSource.Query), uploadGatheringProfile);
 router.get('/gathering', authenticateToken, getGathering);
+router.get('/gathering/save', authenticateToken, getSavedGathering);
 router.post('/gathering/save', authenticateToken, validateBody(createGatheringSaveValidation), createGatheringSave)
 router.delete('/gathering/save', authenticateToken, validateBody(removeGatheringSaveValidation, RouteSource?.Query), removeSavedGathering)
 router.delete('/gathering/save/all', authenticateToken, removeAllSavedGathering)
