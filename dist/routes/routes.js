@@ -37,6 +37,7 @@ router.put('/profile/video/upload', general_1.authenticateToken, uploadConfig_1.
 router.post('/gathering', general_1.authenticateToken, (0, bodyvalidate_middleware_1.validateBody)(gathering_validate_1.createGatheringValidation), gathering_controller_1.createGathering);
 router.post('/gathering/profile/upload', general_1.authenticateToken, uploadConfig_1.default.single('image'), (0, bodyvalidate_middleware_1.validateBody)(gathering_validate_1.uploadGatheringImageValidation, RouteSource.Query), gathering_controller_1.uploadGatheringProfile);
 router.get('/gathering', general_1.authenticateToken, gathering_controller_1.getGathering);
+router.get('/gathering/save', general_1.authenticateToken, gathering_controller_1.getSavedGathering);
 router.post('/gathering/save', general_1.authenticateToken, (0, bodyvalidate_middleware_1.validateBody)(gathering_validate_1.createGatheringSaveValidation), gathering_controller_1.createGatheringSave);
 router.delete('/gathering/save', general_1.authenticateToken, (0, bodyvalidate_middleware_1.validateBody)(gathering_validate_1.removeGatheringSaveValidation, RouteSource?.Query), gathering_controller_1.removeSavedGathering);
 router.delete('/gathering/save/all', general_1.authenticateToken, gathering_controller_1.removeAllSavedGathering);

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeAllSavedGatheringData = exports.removeSavedGatheringData = exports.createGatheringSaveData = exports.getGatheringByUserId = exports.updateGatheringData = exports.getGatheringById = exports.createGatheringData = void 0;
+exports.removeAllSavedGatheringData = exports.removeSavedGatheringData = exports.createGatheringSaveData = exports.getSavedGatheringsByUserId = exports.getGatheringByUserId = exports.updateGatheringData = exports.getGatheringById = exports.createGatheringData = void 0;
 const gathering_model_1 = require("../models/gathering.model");
 const gatheringSave_model_1 = require("../models/gatheringSave.model");
 const mongodb_1 = require("mongodb");
@@ -63,6 +63,31 @@ const getGatheringByUserId = async (userId) => {
     }
 };
 exports.getGatheringByUserId = getGatheringByUserId;
+const getSavedGatheringsByUserId = async (userId) => {
+    try {
+        const gathering = await gathering_model_1.Gathering.find({ userId: userId?.toString() }).lean();
+        // Get all saved gatherings for this user
+        const savedGatherings = await gatheringSave_model_1.GatheringSave.find({ userId: userId?.toString() }).lean();
+        const savedGatheringIds = new Set(savedGatherings.map(sg => sg.gatheringId?.toString()));
+        const modifiedGatherings = gathering?.map((g) => {
+            const primaryCategory = g?.categories?.[0] ?? null;
+            const isChurchLeader = g?.locationTypes?.includes("Church Building");
+            const isSaved = savedGatheringIds.has(g._id?.toString());
+            return {
+                ...g,
+                primaryCategory,
+                isChurchLeader,
+                isSaved
+            };
+        });
+        const filteredGatherings = modifiedGatherings?.filter(g => g.isSaved);
+        return filteredGatherings;
+    }
+    catch (err) {
+        throw err;
+    }
+};
+exports.getSavedGatheringsByUserId = getSavedGatheringsByUserId;
 const createGatheringSaveData = async (data) => {
     try {
         const gatheringSave = new gatheringSave_model_1.GatheringSave(data);

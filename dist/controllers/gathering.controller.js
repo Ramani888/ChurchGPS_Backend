@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeAllSavedGathering = exports.removeSavedGathering = exports.createGatheringSave = exports.getGathering = exports.uploadGatheringProfile = exports.createGathering = void 0;
+exports.removeAllSavedGathering = exports.removeSavedGathering = exports.createGatheringSave = exports.getSavedGathering = exports.getGathering = exports.uploadGatheringProfile = exports.createGathering = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const gathering_service_1 = require("../services/gathering.service");
 const uploadConfig_1 = require("../routes/uploadConfig");
@@ -61,6 +61,18 @@ const getGathering = async (req, res) => {
     }
 };
 exports.getGathering = getGathering;
+const getSavedGathering = async (req, res) => {
+    try {
+        const userId = req?.user?.userId;
+        const gatheringSaves = await (0, gathering_service_1.getSavedGatheringsByUserId)(userId);
+        res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, data: gatheringSaves, message: 'Saved gatherings fetched successfully.' });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+};
+exports.getSavedGathering = getSavedGathering;
 const createGatheringSave = async (req, res) => {
     try {
         const userId = req?.user?.userId;
