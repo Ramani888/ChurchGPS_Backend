@@ -51,8 +51,7 @@ app.use((err, req, res, next) => {
     });
 });
 // ✅ Api
-const basePath = process.env.NODE_ENV === "production" ? "/" : "/api";
-app.use(basePath, routes_1.default);
+app.use("/api", routes_1.default);
 // Catch-all route for undefined routes
 app.use((req, res) => {
     res.status(404).json({ message: "API route not found" });

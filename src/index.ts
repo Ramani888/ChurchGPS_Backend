@@ -59,8 +59,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 // ✅ Api
-const basePath = process.env.NODE_ENV === "production" ? "/" : "/api";
-app.use(basePath, routes)
+app.use("/api", routes)
 
 // Catch-all route for undefined routes
 app.use((req, res) => {
