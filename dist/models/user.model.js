@@ -104,6 +104,10 @@ const UserSchema = new mongoose_1.default.Schema({
         unique: true,
         sparse: true
     },
+    referalBadges: {
+        type: Number,
+        default: 0
+    },
     googleId: {
         type: String,
         unique: true,

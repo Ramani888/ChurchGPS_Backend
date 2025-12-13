@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadGatheringImageValidation = exports.createGatheringValidation = void 0;
+exports.removeGatheringSaveValidation = exports.createGatheringSaveValidation = exports.uploadGatheringImageValidation = exports.createGatheringValidation = void 0;
 exports.createGatheringValidation = {
     categories: 'array|required',
     locationTypes: 'array|required',
@@ -16,5 +16,11 @@ exports.createGatheringValidation = {
     'coordinates.longitude': 'numeric|required',
 };
 exports.uploadGatheringImageValidation = {
+    gatheringId: 'string|required'
+};
+exports.createGatheringSaveValidation = {
+    gatheringId: 'string|required'
+};
+exports.removeGatheringSaveValidation = {
     gatheringId: 'string|required'
 };

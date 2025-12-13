@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getGathering = exports.uploadGatheringProfile = exports.createGathering = void 0;
+exports.removeAllSavedGathering = exports.removeSavedGathering = exports.createGatheringSave = exports.getGathering = exports.uploadGatheringProfile = exports.createGathering = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const gathering_service_1 = require("../services/gathering.service");
 const uploadConfig_1 = require("../routes/uploadConfig");
@@ -61,3 +61,49 @@ const getGathering = async (req, res) => {
     }
 };
 exports.getGathering = getGathering;
+const createGatheringSave = async (req, res) => {
+    try {
+        const userId = req?.user?.userId;
+        const { gatheringId } = req.body;
+        const gathering = await (0, gathering_service_1.getGatheringById)(gatheringId);
+        if (!gathering)
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({ success: false, message: 'Gathering not found.' });
+        await (0, gathering_service_1.createGatheringSaveData)({
+            userId,
+            gatheringId
+        });
+        res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Gathering saved successfully.' });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+};
+exports.createGatheringSave = createGatheringSave;
+const removeSavedGathering = async (req, res) => {
+    try {
+        const userId = req?.user?.userId;
+        const { gatheringId } = req?.query;
+        // Assuming there's a service function to remove gathering save by its ID and userId
+        await (0, gathering_service_1.removeSavedGatheringData)(gatheringId.toString(), userId);
+        res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Removed saved gathering successfully.' });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+};
+exports.removeSavedGathering = removeSavedGathering;
+const removeAllSavedGathering = async (req, res) => {
+    try {
+        const userId = req?.user?.userId;
+        // Assuming there's a service function to remove all gathering saves for a user
+        await (0, gathering_service_1.removeAllSavedGatheringData)(userId);
+        res.status(http_status_codes_1.StatusCodes.OK).json({ success: true, message: 'Removed all saved gatherings successfully.' });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ error: error });
+    }
+};
+exports.removeAllSavedGathering = removeAllSavedGathering;
