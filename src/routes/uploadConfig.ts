@@ -60,6 +60,7 @@ export const uploadToS3 = async (
     Key: fileKey,
     Body: body,
     ContentType: file.mimetype,
+    ACL: 'public-read', // Make the file publicly readable
   };
 
   try {
