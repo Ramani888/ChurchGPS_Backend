@@ -69,7 +69,6 @@ const localSignUp = async (req, res, bodyData, email) => {
             email,
             password: newPassword,
             username: newUserName,
-            userName: newUserName,
             referralCode,
             authProvider: 'local'
         });
@@ -119,7 +118,6 @@ const googleSignUp = async (req, res, bodyData, email) => {
         const user = await (0, user_service_1.createUser)({
             email,
             username: newUserName,
-            userName: newUserName,
             googleId,
             authProvider: 'google',
             profileName: displayName || null,
@@ -207,7 +205,7 @@ const login = async (req, res) => {
                     await (0, user_service_1.updateUser)({
                         _id: user._id,
                         email: user.email,
-                        userName: user.userName ?? user.username,
+                        username: user.username,
                         googleId,
                         authProvider: 'google',
                         profileUrl: profilePicture || user.profileUrl,
@@ -283,7 +281,7 @@ const forgotPassword = async (req, res) => {
         await (0, user_service_1.updateUser)({
             _id: existingUser._id,
             email: existingUser.email,
-            userName: existingUser.userName ?? existingUser.username,
+            username: existingUser.userName ?? existingUser.username,
             password: String(newPassword),
             referralCode: existingUser.referralCode,
             acceptedTnC: existingUser.acceptedTnC,
@@ -326,7 +324,7 @@ const uploadProfileImage = async (req, res) => {
         await (0, user_service_1.updateUser)({
             _id: existingUser._id,
             email: existingUser.email,
-            userName: existingUser.userName ?? existingUser.username,
+            username: existingUser.userName ?? existingUser.username,
             profileUrl: profileUrl,
             referralCode: existingUser.referralCode,
             acceptedTnC: existingUser.acceptedTnC,
@@ -353,7 +351,7 @@ const uploadProfileVideo = async (req, res) => {
         await (0, user_service_1.updateUser)({
             _id: existingUser._id,
             email: existingUser.email,
-            userName: existingUser.userName ?? existingUser.username,
+            username: existingUser.userName ?? existingUser.username,
             videoUrl: videoUrl,
             referralCode: existingUser.referralCode,
             acceptedTnC: existingUser.acceptedTnC,
