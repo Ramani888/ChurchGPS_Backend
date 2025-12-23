@@ -7,7 +7,7 @@ declare namespace Express {
 export interface IUser {
   _id?: ObjectId;
   email: string;
-  userName: string;
+  username: string;
   password?: string | null;
   dob?: Date;
   acceptedTnC: boolean;

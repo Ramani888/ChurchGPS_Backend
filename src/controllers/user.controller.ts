@@ -74,7 +74,6 @@ const localSignUp = async (req: AuthorizedRequest, res: Response, bodyData: any,
             email, 
             password: newPassword, 
             username: newUserName, 
-            userName: newUserName,
             referralCode,
             authProvider: 'local'
         });
@@ -130,7 +129,6 @@ const googleSignUp = async (req: AuthorizedRequest, res: Response, bodyData: any
         const user = await createUser({
             email,
             username: newUserName,
-            userName: newUserName,
             googleId,
             authProvider: 'google',
             profileName: displayName || null,
@@ -227,7 +225,7 @@ export const login = async (req: AuthorizedRequest, res: Response) => {
                     await updateUser({
                         _id: user._id,
                         email: user.email,
-                        userName: (user as any).userName ?? (user as any).username,
+                        username: (user as any).username,
                         googleId,
                         authProvider: 'google',
                         profileUrl: profilePicture || user.profileUrl,
@@ -318,7 +316,7 @@ export const forgotPassword = async (req: AuthorizedRequest, res: Response) => {
         await updateUser({
             _id: existingUser._id,
             email: existingUser.email,
-            userName: (existingUser as any).userName ?? (existingUser as any).username,
+            username: (existingUser as any).userName ?? (existingUser as any).username,
             password: String(newPassword),
             referralCode: existingUser.referralCode,
             acceptedTnC: existingUser.acceptedTnC,
@@ -361,7 +359,7 @@ export const uploadProfileImage = async (req: AuthorizedRequest, res: Response) 
         await updateUser({
             _id: existingUser._id,
             email: existingUser.email,
-            userName: (existingUser as any).userName ?? (existingUser as any).username,
+            username: (existingUser as any).userName ?? (existingUser as any).username,
             profileUrl: profileUrl,
             referralCode: existingUser.referralCode,
             acceptedTnC: existingUser.acceptedTnC,
@@ -388,7 +386,7 @@ export const uploadProfileVideo = async (req: AuthorizedRequest, res: Response) 
         await updateUser({
             _id: existingUser._id,
             email: existingUser.email,
-            userName: (existingUser as any).userName ?? (existingUser as any).username,
+            username: (existingUser as any).userName ?? (existingUser as any).username,
             videoUrl: videoUrl,
             referralCode: existingUser.referralCode,
             acceptedTnC: existingUser.acceptedTnC,
