@@ -23,16 +23,14 @@ export const createCommunity = async (req: AuthorizedRequest, res: Response) => 
 
 export const getCommunity = async (req: AuthorizedRequest, res: Response) => {
     try {
+        const { lat, lng } = req?.query;
         const data = await getCommunityData();
-
-        const userLat = 23.021;
-        const userLng = 72.571;
         const MAX_DISTANCE = 250;
 
         const nearbyCommunities = data?.map((item) => {
             const distance = getDistanceMiles(
-                userLat,
-                userLng,
+                Number(lat),
+                Number(lng),
                 item?.coordinates?.latitude ?? 0,
                 item?.coordinates?.longitude ?? 0
             );

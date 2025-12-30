@@ -3,3 +3,8 @@ export const createCommunityValidation = {
     'coordinates.latitude': 'numeric|required',
     'coordinates.longitude': 'numeric|required',
 }
+
+export const getCommunityValidation = {
+    lat: 'numeric|required',
+    lng: 'numeric|required',
+}

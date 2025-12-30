@@ -7,7 +7,7 @@ import { set } from "mongoose";
 import upload from "./uploadConfig";
 import { createGathering, createGatheringSave, getGathering, getSavedGathering, removeAllSavedGathering, removeSavedGathering, uploadGatheringProfile } from "../controllers/gathering.controller";
 import { createGatheringSaveValidation, createGatheringValidation, removeGatheringSaveValidation, uploadGatheringImageValidation } from "../utils/validates/gathering.validate";
-import { createCommunityValidation } from "../utils/validates/community.validate";
+import { createCommunityValidation, getCommunityValidation } from "../utils/validates/community.validate";
 import { createCommunity, getCommunity } from "../controllers/community.controller";
 
 enum RouteSource {
@@ -45,6 +45,6 @@ router.delete('/gathering/save', authenticateToken, validateBody(removeGathering
 router.delete('/gathering/save/all', authenticateToken, removeAllSavedGathering)
 
 router.post('/community', authenticateToken, validateBody(createCommunityValidation), createCommunity);
-router.get('/community', authenticateToken, getCommunity);
+router.get('/community', authenticateToken, validateBody(getCommunityValidation, RouteSource.Query), getCommunity);
 
 export default router;
