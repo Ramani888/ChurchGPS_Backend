@@ -20,5 +20,7 @@ const CommunitySchema = new mongoose_1.default.Schema({
         longitude: { type: Number, required: true },
     },
 }, { timestamps: true });
+CommunitySchema.index({ createdAt: 1 }, { expireAfterSeconds: 432000 } // 5 days
+);
 const dbConnection = mongoose_1.default.connection.useDb(env.DATABASE_NAME ?? '');
 exports.Community = dbConnection.model('Community', CommunitySchema, 'Community');
