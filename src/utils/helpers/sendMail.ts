@@ -1,35 +1,38 @@
 import nodemailer from 'nodemailer';
 
-const sendMail = async (to: string, subject: string, htmlTemplate: any, imageUrl?: string) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'Biblestudykitapp@gmail.com',
-            pass: 'jtlo jveb dilx fhlx'
-        },
-        tls: {
-            // Disable TLS certificate validation
-            rejectUnauthorized: false
-        }
-    });
-
-    const mailOptions: { [key: string]: any } = {
-        from: 'Biblestudykitapp@gmail.com',
-        to,
-        subject,
-        html: htmlTemplate
-    };
-
-    // Add attachment only if imagePath is provided
-    if (imageUrl) {
-        mailOptions.attachments = [
-            {
-                path: imageUrl
-            }
-        ];
+const sendMail = async (
+  to: string,
+  subject: string,
+  htmlTemplate: any,
+  imageUrl?: string
+) => {
+  const transporter = nodemailer.createTransport({
+    host: 'mail.privateemail.com',
+    port: 587, // TLS
+    secure: false, // false for 587, true for 465
+    auth: {
+      user: 'team@churchgps.com',
+      pass: 'BibleApp1234' // mailbox or app password
     }
+  });
 
-    await transporter.sendMail(mailOptions);
+  const mailOptions: any = {
+    from: '"Church GPS" <team@churchgps.com>',
+    to,
+    subject,
+    html: htmlTemplate
+  };
+
+  if (imageUrl) {
+    mailOptions.attachments = [
+      {
+        filename: 'image.jpg',
+        path: imageUrl
+      }
+    ];
+  }
+
+  await transporter.sendMail(mailOptions);
 };
 
 export default sendMail;
