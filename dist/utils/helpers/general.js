@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateReferralCode = exports.comparePassword = exports.generateOTP = exports.generateUniqueUsername = exports.encryptPassword = void 0;
+exports.getDistanceMiles = exports.generateReferralCode = exports.comparePassword = exports.generateOTP = exports.generateUniqueUsername = exports.encryptPassword = void 0;
 exports.authenticateToken = authenticateToken;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 // Using dynamic import for nanoid
@@ -116,3 +116,16 @@ const generateReferralCode = () => {
     return code;
 };
 exports.generateReferralCode = generateReferralCode;
+const getDistanceMiles = (lat1, lon1, lat2, lon2) => {
+    const toRad = (value) => (value * Math.PI) / 180;
+    const R = 3958.8; // Earth radius in miles
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) *
+            Math.cos(toRad(lat2)) *
+            Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+};
+exports.getDistanceMiles = getDistanceMiles;

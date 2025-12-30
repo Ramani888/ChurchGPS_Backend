@@ -11,6 +11,8 @@ const general_1 = require("../utils/helpers/general");
 const uploadConfig_1 = __importDefault(require("./uploadConfig"));
 const gathering_controller_1 = require("../controllers/gathering.controller");
 const gathering_validate_1 = require("../utils/validates/gathering.validate");
+const community_validate_1 = require("../utils/validates/community.validate");
+const community_controller_1 = require("../controllers/community.controller");
 var RouteSource;
 (function (RouteSource) {
     RouteSource[RouteSource["Body"] = 0] = "Body";
@@ -41,4 +43,6 @@ router.get('/gathering/save', general_1.authenticateToken, gathering_controller_
 router.post('/gathering/save', general_1.authenticateToken, (0, bodyvalidate_middleware_1.validateBody)(gathering_validate_1.createGatheringSaveValidation), gathering_controller_1.createGatheringSave);
 router.delete('/gathering/save', general_1.authenticateToken, (0, bodyvalidate_middleware_1.validateBody)(gathering_validate_1.removeGatheringSaveValidation, RouteSource?.Query), gathering_controller_1.removeSavedGathering);
 router.delete('/gathering/save/all', general_1.authenticateToken, gathering_controller_1.removeAllSavedGathering);
+router.post('/community', general_1.authenticateToken, (0, bodyvalidate_middleware_1.validateBody)(community_validate_1.createCommunityValidation), community_controller_1.createCommunity);
+router.get('/community', general_1.authenticateToken, (0, bodyvalidate_middleware_1.validateBody)(community_validate_1.getCommunityValidation, RouteSource.Query), community_controller_1.getCommunity);
 exports.default = router;
