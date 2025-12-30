@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
 import { createCommunityData, getCommunityData } from "../services/community.service";
 import { getDistanceMiles } from "../utils/helpers/general";
+import { getUserById } from "../services/user.service";
 
 export const createCommunity = async (req: AuthorizedRequest, res: Response) => {
     try {
@@ -27,20 +28,24 @@ export const getCommunity = async (req: AuthorizedRequest, res: Response) => {
         const data = await getCommunityData();
         const MAX_DISTANCE = 250;
 
-        const nearbyCommunities = data?.map((item) => {
+        const allCommunities = await Promise.all(data?.map(async (item) => {
             const distance = getDistanceMiles(
                 Number(lat),
                 Number(lng),
                 item?.coordinates?.latitude ?? 0,
                 item?.coordinates?.longitude ?? 0
             );
+            const userData = await getUserById(item.userId) as IUser;
 
             return {
                 ...item.toObject(),
-                distance: Number(distance.toFixed(2)) // ✅ only number
+                distance: Number(distance.toFixed(2)), // ✅ only number
+                userData
             };
-        }).filter((item) => item.distance <= MAX_DISTANCE);
+        }));
 
+        const nearbyCommunities = allCommunities.filter((item) => item.distance <= MAX_DISTANCE);
+        
         res.status(StatusCodes.OK).json({ success: true, data: nearbyCommunities, message: 'Communities fetched successfully.' });
     } catch (error) {
         console.error(error);
