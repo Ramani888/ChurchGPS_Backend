@@ -10,39 +10,36 @@ const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const routes_1 = __importDefault(require("./routes/routes"));
 const mongoose_1 = __importDefault(require("mongoose"));
-// Load environment variables from .env
-dotenv_1.default.config();
+const http_1 = __importDefault(require("http"));
+const socket_1 = require("./socket");
+// ------------------ ENVIRONMENT ------------------ //
+dotenv_1.default.config(); // Load environment variables from .env
+// ------------------ DB CONNECTION ------------------ //
 const app = (0, express_1.default)();
-const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://CVLCluster1:Ramani%407258@atlascluster.g9ls9b9.mongodb.net/ChurchGPS';
+const mongoUri = process.env.MONGODB_URI || "mongodb+srv://CVLCluster1:Ramani%407258@atlascluster.g9ls9b9.mongodb.net/ChurchGPS";
 mongoose_1.default.connect(mongoUri);
 const database = mongoose_1.default.connection;
-database.on('error', (error) => {
-    console.log(error);
+database.on("error", (error) => {
+    console.error("❌ MongoDB connection error:", error);
 });
-database.once('connected', () => {
-    console.log('Database Connected');
+database.once("connected", () => {
+    console.log("✅ Database Connected");
 });
-// ✅ Security Middlewares
-app.use((0, helmet_1.default)()); // sets secure HTTP headers
-app.use((0, cors_1.default)({ origin: process.env.CLIENT_URL || "*" })); // restrict origins if needed
-app.use(express_1.default.json({ limit: "10kb" })); // prevent large payloads
-app.use(express_1.default.urlencoded({ extended: true, limit: "10kb" })); // secure URL-encoded parser
-// ✅ Logging (development only)
+// ------------------ MIDDLEWARES ------------------ //
+app.use((0, helmet_1.default)()); // Secure HTTP headers
+app.use((0, cors_1.default)({ origin: process.env.CLIENT_URL || "*" })); // CORS policy
+app.use(express_1.default.json({ limit: "10kb" })); // Limit JSON payload size
+app.use(express_1.default.urlencoded({ extended: true, limit: "10kb" })); // Limit URL-encoded payload size
+// Logging (development only)
 if (process.env.NODE_ENV === "development") {
     app.use((0, morgan_1.default)("dev"));
 }
-// ✅ Rate Limiting
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 100, // limit each IP to 100 requests per window
-//   message: "Too many requests, please try again later.",
-// });
-// app.use(limiter);
-// ✅ Example Route
+// ------------------ ROUTES ------------------ //
 app.get("/", (req, res) => {
     res.json({ message: "Hello from Secure Node.js + TypeScript API 🚀" });
 });
-// ✅ Error Handling Middleware
+app.use("/api", routes_1.default); // Main API routes
+// ------------------ ERROR HANDLING ------------------ //
 app.use((err, req, res, next) => {
     console.error("Error:", err);
     res.status(err.status || 500).json({
@@ -50,14 +47,15 @@ app.use((err, req, res, next) => {
         message: err.message || "Internal Server Error",
     });
 });
-// ✅ Api
-app.use("/api", routes_1.default);
-// Catch-all route for undefined routes
+// Catch-all for undefined routes
 app.use((req, res) => {
     res.status(404).json({ message: "API route not found" });
 });
-// ✅ Server Listen
+// ------------------ SOCKET.IO ------------------ //
+const server = http_1.default.createServer(app);
+(0, socket_1.initSocket)(server);
+// ------------------ SERVER LISTEN ------------------ //
 const PORT = process.env.PORT || 3010;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`🚀 Server running securely on http://localhost:${PORT}`);
 });
